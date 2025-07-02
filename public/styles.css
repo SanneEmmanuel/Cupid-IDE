@@ -1,0 +1,262 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent; /* Better mobile touch feedback */
+}
+
+html, body {
+  height: 100%;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Roboto Mono', monospace;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  touch-action: manipulation; /* Improves touch responsiveness */
+}
+
+:root {
+  /* Colors */
+  --color-primary: #6200ee;
+  --color-secondary: #03dac6;
+  --color-surface: #ffffff;
+  --color-background: #f5f5f5;
+  --color-text: #000000;
+  --color-border: rgba(0, 0, 0, 0.12);
+  
+  /* Responsive sizes */
+  --header-height: clamp(3rem, 8vh, 4rem);
+  --sidebar-width: clamp(200px, 25vw, 300px);
+  --panel-height: clamp(150px, 25vh, 250px);
+  --status-height: 2rem;
+  --font-size-base: clamp(12px, 1.5vw, 14px);
+  --font-size-small: clamp(11px, 1.2vw, 13px);
+}
+
+[data-theme="dark"] {
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-text: #f5f5f5;
+  --color-border: rgba(255, 255, 255, 0.2);
+  --color-primary: #bb86fc;
+  --color-secondary: #03dac6;
+}
+
+/* Responsive menu bar */
+.menu-bar {
+  display: flex;
+  background-color: var(--color-surface);
+  height: var(--header-height);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 1rem;
+  align-items: center;
+  font-size: var(--font-size-small);
+  overflow-x: auto; /* For small screens */
+  white-space: nowrap;
+}
+
+.menu-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  color: var(--color-text);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:hover, .menu-item:focus-visible {
+  background-color: var(--color-border);
+}
+
+/* Main IDE layout */
+.ide-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  flex-direction: row;
+}
+
+/* Responsive sidebar */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    z-index: 10;
+    height: 100%;
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
+
+.tool-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+}
+
+.project-tree {
+  padding: 0.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Editor area */
+.editor-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.editor-tabs {
+  display: flex;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.editor-tab {
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  color: var(--color-text);
+  position: relative;
+  white-space: nowrap;
+}
+
+.editor-tab.active {
+  color: var(--color-primary);
+}
+
+.editor-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 2px;
+  background: var(--color-primary);
+}
+
+.editor-content {
+  flex: 1;
+  position: relative;
+  min-height: 200px; /* Ensure editor has minimum space */
+}
+
+#editor {
+  width: 100%;
+  height: 100%;
+  font-size: var(--font-size-base);
+}
+
+/* Bottom panel */
+.bottom-panel {
+  background-color: var(--color-surface);
+  height: var(--panel-height);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-tabs {
+  display: flex;
+  background-color: var(--color-surface);
+  height: 2.5rem;
+  overflow-x: auto;
+}
+
+.panel-tab {
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-small);
+  color: var(--color-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.panel-tab.active {
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.panel-content {
+  flex: 1;
+  padding: 0.75rem;
+  overflow: auto;
+  font-size: var(--font-size-small);
+}
+
+#preview {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: var(--color-surface);
+  border: none;
+}
+
+/* Status bar */
+.status-bar {
+  height: var(--status-height);
+  background-color: var(--color-primary);
+  color: white;
+  font-size: var(--font-size-small);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+}
+
+.status-item i {
+  margin-right: 0.5rem;
+}
+
+/* Mobile-specific additions */
+@media (max-width: 768px) {
+  .menu-bar {
+    padding: 0 0.5rem;
+  }
+  
+  .menu-item {
+    padding: 0.5rem;
+  }
+  
+  .editor-tab, .panel-tab {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Make editor area full width when sidebar is hidden */
+  .sidebar:not(.open) + .editor-area {
+    width: 100%;
+  }
+}
+
+/* Utility classes for mobile */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: initial;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}

@@ -1,0 +1,109 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>Cupid-IDE 💘</title>
+  <link rel="stylesheet" href="/HeartBrake.min.css">
+  <style>
+    #editor { height: 60vh; }
+    iframe { width: 100%; height: 300px; border: 1px solid var(--color-border); }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
+</head>
+<body class="container">
+  <header class="row card">
+    <button class="btn" onclick="saveFile()">💾 Save</button>
+    <button class="btn" onclick="loadFile()">📂 Load</button>
+    <button class="btn" onclick="runCode()">▶️ Run</button>
+    <button class="btn" onclick="importFromGit()">⬇️ GitHub</button>
+    <button class="btn" onclick="pushToGit()">⬆️ Push</button>
+    <button class="btn btn--secondary" onclick="toggleTheme()">🌗 Theme</button>
+  </header>
+
+  <div class="row">
+    <div class="col-6">
+      <input class="input" id="filename" placeholder="Filename.js or Filename.html" />
+      <div id="editor" class="card animate-fadeIn"></div>
+    </div>
+    <div class="col-6">
+      <pre class="card" id="terminal">💘 Cupid-IDE Console</pre>
+      <iframe id="preview" class="card" title="HTML Preview"></iframe>
+    </div>
+  </div>
+
+  <script>
+    let editor;
+    require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' } });
+    require(['vs/editor/editor.main'], () => {
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        value: "// Welcome to Cupid-IDE 💘\nconsole.log('Hello World!');",
+        language: 'javascript',
+        theme: 'vs-dark',
+      });
+    });
+
+    const post = async (url, data) => {
+      const res = await fetch(url, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      return res.json();
+    };
+
+    function saveFile() {
+      const name = document.getElementById('filename').value;
+      post('/api/save', { name, content: editor.getValue() }).then(() => log("💾 Saved"));
+    }
+
+    function loadFile() {
+      const name = document.getElementById('filename').value;
+      fetch('/api/load?name=' + name)
+        .then(res => res.json())
+        .then(data => {
+          editor.setValue(data.content);
+          detectLang(name);
+        });
+    }
+
+    function runCode() {
+      const name = document.getElementById('filename').value;
+      if (name.endsWith('.html')) {
+        const html = editor.getValue();
+        const blob = new Blob([html], { type: 'text/html' });
+        document.getElementById('preview').src = URL.createObjectURL(blob);
+        log("🌐 HTML rendered below");
+      } else {
+        post('/api/run', { name }).then(res => log("▶️ " + res.output));
+      }
+    }
+
+    function importFromGit() {
+      const repo = prompt("GitHub repo (https://github.com/user/repo):");
+      const token = prompt("GitHub token:");
+      post('/api/github/import', { repo, token }).then(() => log("⬇️ Repo imported"));
+    }
+
+    function pushToGit() {
+      const token = prompt("GitHub token:");
+      const message = prompt("Commit message:");
+      post('/api/github/push', { token, message }).then(() => log("⬆️ Pushed"));
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      html.setAttribute("data-theme", html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    }
+
+    function log(msg) {
+      document.getElementById("terminal").textContent += "\n" + msg;
+    }
+
+    function detectLang(name) {
+      const ext = name.split('.').pop();
+      const lang = ext === 'html' ? 'html' : 'javascript';
+      monaco.editor.setModelLanguage(editor.getModel(), lang);
+    }
+  </script>
+</body>
+</html>

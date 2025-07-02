@@ -1,0 +1,28 @@
+{
+  "name": "cupid-ide",
+  "version": "1.0.0",
+  "description": "💘 Cupid-IDE: A Love-powered Web IDE with GitHub and HeartBreakUI",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ide",
+    "monaco",
+    "web-ide",
+    "github",
+    "heartbreakui",
+    "cupid",
+    "express"
+  ],
+  "author": "Dr. Sanne Karibo",
+  "license": "MIT"
+}

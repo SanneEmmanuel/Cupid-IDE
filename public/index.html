@@ -1,75 +1,493 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <title>💘 Cupid-IDE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cupid-IDE 💘</title>
   <link rel="stylesheet" href="/HeartBrake.min.css">
-  <style>
-    #editor { height: 60vh; }
-    iframe { width: 100%; height: 300px; border: 1px solid var(--color-border); }
-    .header-btns button { margin-right: 8px; }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
+  <style>
+    /* === RESET === */ 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } 
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--color-background); color: var(--color-text); } 
+    
+    /* === TYPOGRAPHY === */ 
+    h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.2; margin-bottom: 0.5em; } 
+    p { margin-bottom: 1em; line-height: 1.6; } 
+    
+    /* === LAYOUT HELPERS === */ 
+    .container { width: 100%; max-width: 1200px; margin: auto; padding: 1rem; } 
+    .row { display: flex; flex-wrap: wrap; margin: 0 -0.5rem; } 
+    .col { flex: 1 0 0; padding: 0.5rem; } 
+    .col-6 { flex: 0 0 50%; } 
+    @media (max-width: 768px) { .col-6 { flex: 0 0 100%; } } 
+    
+    :root { 
+      --color-primary: #6200ee; 
+      --color-secondary: #03dac6; 
+      --color-surface: #ffffff; 
+      --color-background: #f5f5f5; 
+      --color-text: #000000; 
+      --color-muted: #8e8e93; 
+      --color-border: rgba(0,0,0,0.12); 
+      --color-accent: #007aff; 
+      --space-xs: 4px; 
+      --space-sm: 8px; 
+      --space-md: 16px; 
+      --space-lg: 24px; 
+      --space-xl: 32px; 
+      --radius-sm: 4px; 
+      --radius-md: 8px; 
+      --radius-lg: 16px; 
+      --elevation-1: 0 1px 3px rgba(0,0,0,0.12); 
+      --elevation-2: 0 3px 6px rgba(0,0,0,0.16); 
+      --elevation-3: 0 10px 20px rgba(0,0,0,0.19); 
+      --motion-fast: 150ms ease-in; 
+      --motion-medium: 300ms ease; 
+      --motion-slow: 500ms ease-out; 
+    } 
+    
+    .btn { 
+      padding: var(--space-sm) var(--space-md); 
+      border: none; 
+      border-radius: var(--radius-md); 
+      background-color: var(--color-primary); 
+      color: #fff; 
+      cursor: pointer; 
+      transition: background-color var(--motion-fast); 
+    } 
+    
+    .btn:hover { background-color: #3700b3; } 
+    .btn--secondary { background-color: var(--color-secondary); color: #000; } 
+    
+    .card { 
+      background: var(--color-surface); 
+      box-shadow: var(--elevation-1); 
+      padding: var(--space-lg); 
+      border-radius: var(--radius-md); 
+      transition: box-shadow var(--motion-medium); 
+    } 
+    
+    .card:hover { box-shadow: var(--elevation-3); } 
+    
+    .modal { 
+      background: var(--color-surface); 
+      box-shadow: var(--elevation-2); 
+      padding: var(--space-lg); 
+      border-radius: var(--radius-lg); 
+      max-width: 500px; 
+      margin: auto; 
+    } 
+    
+    .input { 
+      padding: var(--space-sm); 
+      border: 1px solid var(--color-border); 
+      border-radius: var(--radius-sm); 
+      width: 100%; 
+      font-size: 1rem; 
+      transition: border-color var(--motion-fast); 
+    } 
+    
+    .input:focus { 
+      border-color: var(--color-primary); 
+      outline: none; 
+    } 
+    
+    :root { 
+      --color-background: #f5f5f5; 
+      --color-surface: #ffffff; 
+      --color-text: #000000; 
+      --color-border: rgba(0,0,0,0.12); 
+    } 
+    
+    [data-theme="dark"] { 
+      --color-background: #121212; 
+      --color-surface: #1e1e1e; 
+      --color-text: #f5f5f5; 
+      --color-border: rgba(255,255,255,0.2); 
+      --color-primary: #bb86fc; 
+      --color-secondary: #03dac6; 
+      --color-accent: #0a84ff; 
+    } 
+    
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } 
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } } 
+    @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } } 
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } } 
+    @keyframes glassMorph { 0% { backdrop-filter: blur(0px); } 100% { backdrop-filter: blur(12px); } } 
+    @keyframes rotate3D { 0% { transform: rotateY(0); } 100% { transform: rotateY(360deg); } } 
+    @keyframes ghostTrail { 0% { opacity: 1; filter: blur(0); } 100% { opacity: 0; filter: blur(5px); } } 
+    @keyframes quantumBlip { 0%, 100% { transform: scale(1) rotate(0); opacity: 1; } 50% { transform: scale(0.5) rotate(180deg); opacity: 0.2; } } 
+    @keyframes stutterFrame { 0% { transform: translate(0, 0); } 10% { transform: translate(3px, -2px); } 20% { transform: translate(-3px, 2px); } 30% { transform: translate(2px, 1px); } 100% { transform: translate(0, 0); } } 
+    @keyframes portalOpen { 0% { transform: scale(0.1); opacity: 0; border-radius: 50%; } 100% { transform: scale(1); opacity: 1; border-radius: 0; } } 
+    
+    .animate-fadeIn { animation: fadeIn 0.6s ease-out both; } 
+    .animate-slideUp { animation: slideUp 0.5s ease-out both; } 
+    .animate-zoomIn { animation: zoomIn 0.4s ease-in both; } 
+    .animate-bounce { animation: bounce 1s infinite; } 
+    .animate-glassMorph { animation: glassMorph 0.8s ease forwards; } 
+    .animate-rotate3D { animation: rotate3D 2s linear infinite; } 
+    .animate-ghostTrail { animation: ghostTrail 1.2s ease-in-out both; } 
+    .animate-quantum { animation: quantumBlip 1.4s ease-in-out infinite; } 
+    .animate-stutter { animation: stutterFrame 0.4s linear 3; } 
+    .animate-portal { animation: portalOpen 0.7s ease-in-out both; } 
+    
+    /* IntelliJ-Specific Styles */
+    body {
+      background-color: #1e1e1e;
+      color: #a9b7c6;
+      font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Top Menu Bar */
+    .menu-bar {
+      display: flex;
+      background-color: #2b2b2b;
+      height: 40px;
+      border-bottom: 1px solid #3c3f41;
+      padding: 0 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+    
+    .menu-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: #a9b7c6;
+      transition: background-color 0.2s;
+    }
+    
+    .menu-item:hover {
+      background-color: #3c3f41;
+    }
+    
+    /* Main Layout */
+    .ide-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    /* Left Sidebar */
+    .sidebar {
+      width: 250px;
+      background-color: #2b2b2b;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #3c3f41;
+    }
+    
+    .tool-window {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .tool-header {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid #3c3f41;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    /* Project Tree */
+    .project-tree {
+      padding: 8px 0;
+    }
+    
+    .tree-node {
+      padding: 4px 0 4px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    
+    .tree-node:hover {
+      background-color: #3c3f41;
+    }
+    
+    .tree-node i {
+      margin-right: 6px;
+      font-size: 14px;
+      width: 16px;
+      text-align: center;
+    }
+    
+    /* Editor Area */
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .editor-tabs {
+      display: flex;
+      background-color: #313335;
+      border-bottom: 1px solid #3c3f41;
+      height: 36px;
+      overflow-x: auto;
+    }
+    
+    .editor-tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #3c3f41;
+      background-color: #313335;
+    }
+    
+    .editor-tab.active {
+      background-color: #1e1e1e;
+      color: #d7ba7d;
+    }
+    
+    .editor-tab i {
+      margin-right: 6px;
+      font-size: 14px;
+    }
+    
+    .editor-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .editor {
+      flex: 1;
+      padding: 16px;
+      overflow: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      background-color: #1e1e1e;
+    }
+    
+    .line-numbers {
+      width: 50px;
+      background-color: #2b2b2b;
+      padding: 16px 8px;
+      text-align: right;
+      color: #606366;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      border-right: 1px solid #3c3f41;
+    }
+    
+    .line-number {
+      height: 21px;
+    }
+    
+    /* Bottom Panel */
+    .bottom-panel {
+      background-color: #2b2b2b;
+      height: 200px;
+      border-top: 1px solid #3c3f41;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .panel-tabs {
+      display: flex;
+      background-color: #313335;
+      height: 36px;
+      border-bottom: 1px solid #3c3f41;
+    }
+    
+    .panel-tab {
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #3c3f41;
+    }
+    
+    .panel-tab.active {
+      background-color: #1e1e1e;
+      color: #d7ba7d;
+    }
+    
+    .panel-content {
+      flex: 1;
+      padding: 12px;
+      overflow: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+    
+    /* Status Bar */
+    .status-bar {
+      height: 24px;
+      background-color: #0078d7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 12px;
+      color: white;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+    }
+    
+    .status-item i {
+      margin-right: 6px;
+    }
+    
+    /* Syntax Highlighting */
+    .keyword { color: #569cd6; }
+    .function { color: #dcdcaa; }
+    .string { color: #ce9178; }
+    .comment { color: #6a9955; }
+    .number { color: #b5cea8; }
+    .operator { color: #d4d4d4; }
+    .class { color: #4ec9b0; }
+    .annotation { color: #c586c0; }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #2b2b2b;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #606366;
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #757575;
+    }
+
+    /* Custom styles for Cupid-IDE */
+    .preview {
+      flex: 1;
+      border: none;
+      background: white;
+    }
+  </style>
 </head>
-<body class="container animate-fadeIn">
+<body data-theme="dark">
+  <div class="menu-bar">
+    <div class="menu-item" onclick="saveFile()">💾 Save</div>
+    <div class="menu-item" onclick="loadFile()">📂 Load</div>
+    <div class="menu-item" onclick="runCode()">▶️ Run</div>
+    <div class="menu-item" onclick="importFromGit()">⬇️ GitHub</div>
+    <div class="menu-item" onclick="pushToGit()">⬆️ Push</div>
+    <div class="menu-item" onclick="toggleTheme()">🌗 Theme</div>
+  </div>
 
-  <!-- Top Bar -->
-  <header class="row card animate-slideUp">
-    <div class="col header-btns">
-      <button class="btn animate-bounce" onclick="saveFile()">💾 Save</button>
-      <button class="btn animate-portal" onclick="loadFile()">📂 Load</button>
-      <button class="btn animate-glassMorph" onclick="runCode()">▶️ Run</button>
-      <button class="btn animate-rotate3D" onclick="importFromGit()">⬇️ GitHub</button>
-      <button class="btn animate-ghostTrail" onclick="pushToGit()">⬆️ Push</button>
-      <button class="btn btn--secondary animate-stutter" onclick="toggleTheme()">🌗 Theme</button>
+  <div class="ide-container">
+    <div class="sidebar">
+      <div class="tool-window">
+        <div class="tool-header">
+          <span>Project</span>
+          <i class="fas fa-cog"></i>
+        </div>
+        <div class="project-tree">
+          <input class="input" id="filename" placeholder="Filename.js or Filename.html" style="margin: 8px;" />
+        </div>
+      </div>
     </div>
-  </header>
 
-  <!-- Main Editor Area -->
-  <div class="row">
-    <div class="col-6 animate-zoomIn">
-      <input class="input card" id="filename" placeholder="Filename.js or Filename.html" />
-      <div id="editor" class="card animate-portal"></div>
-    </div>
+    <div class="editor-area">
+      <div class="editor-tabs">
+        <div class="editor-tab active">
+          <i class="fas fa-code"></i>
+          <span id="tab-label">Untitled.js</span>
+        </div>
+      </div>
 
-    <div class="col-6">
-      <pre class="card animate-slideUp" id="terminal">💘 Cupid-IDE Console</pre>
-      <iframe id="preview" class="card animate-zoomIn" title="HTML Preview"></iframe>
+      <div class="editor-content">
+        <div class="line-numbers" id="line-numbers"></div>
+        <div id="editor" class="editor"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Scripts -->
+  <div class="bottom-panel">
+    <div class="panel-tabs">
+      <div class="panel-tab active">Terminal</div>
+    </div>
+    <div class="panel-content" id="terminal">💘 Cupid-IDE Console</div>
+    <iframe id="preview" class="preview"></iframe>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-item"><i class="fas fa-code-branch"></i><span>main</span></div>
+    <div class="status-item"><i class="fas fa-check-circle"></i><span>Ready</span></div>
+    <div class="status-item"><i class="fas fa-keyboard"></i><span>Insert</span></div>
+    <div class="status-item"><i class="fas fa-microchip"></i><span>Node.js</span></div>
+  </div>
+
   <script>
     let editor;
     require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' } });
     require(['vs/editor/editor.main'], () => {
       editor = monaco.editor.create(document.getElementById('editor'), {
-        value: "// Welcome to Cupid-IDE 💘\nconsole.log('Hello World!');",
+        value: `// Welcome to Cupid-IDE\nconsole.log('Hello World');`,
         language: 'javascript',
         theme: 'vs-dark',
+        automaticLayout: true
       });
+      updateLineNumbers();
+      editor.onDidChangeModelContent(updateLineNumbers);
     });
 
-    const post = async (url, data) => {
+    function updateLineNumbers() {
+      const lines = editor.getModel().getLineCount();
+      const container = document.getElementById('line-numbers');
+      container.innerHTML = '';
+      for (let i = 1; i <= lines; i++) {
+        const div = document.createElement('div');
+        div.className = 'line-number';
+        div.textContent = i;
+        container.appendChild(div);
+      }
+    }
+
+    async function post(url, data) {
       const res = await fetch(url, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
       return res.json();
-    };
+    }
 
     function saveFile() {
-      const name = document.getElementById('filename').value;
-      post('/api/save', { name, content: editor.getValue() }).then(() => log("💾 Saved"));
+      const name = document.getElementById('filename').value || 'untitled.js';
+      const content = editor.getValue();
+      document.getElementById('tab-label').textContent = name;
+      post('/api/save', { name, content }).then(() => log('💾 Saved'));
     }
 
     function loadFile() {
       const name = document.getElementById('filename').value;
-      fetch('/api/load?name=' + name)
+      fetch(`/api/load?name=${name}`)
         .then(res => res.json())
         .then(data => {
           editor.setValue(data.content);
           detectLang(name);
+          document.getElementById('tab-label').textContent = name;
         });
     }
 
@@ -79,32 +497,32 @@
         const html = editor.getValue();
         const blob = new Blob([html], { type: 'text/html' });
         document.getElementById('preview').src = URL.createObjectURL(blob);
-        log("🌐 HTML rendered in preview");
+        log("🌐 HTML rendered below");
       } else {
-        post('/api/run', { name }).then(res => log("▶️ " + res.output));
+        post('/api/run', { name }).then(res => log(res.output));
       }
     }
 
     function importFromGit() {
-      const repo = prompt("GitHub repo (https://github.com/user/repo):");
-      const token = prompt("GitHub token:");
-      post('/api/github/import', { repo, token }).then(() => log("⬇️ Repo imported"));
+      const repo = prompt('GitHub repo URL:');
+      const token = prompt('GitHub token:');
+      post('/api/github/import', { repo, token }).then(() => log('⬇️ Cloned GitHub repo'));
     }
 
     function pushToGit() {
-      const token = prompt("GitHub token:");
-      const message = prompt("Commit message:");
-      post('/api/github/push', { token, message }).then(() => log("⬆️ Pushed"));
+      const token = prompt('GitHub token:');
+      const message = prompt('Commit message:');
+      post('/api/github/push', { token, message }).then(() => log('⬆️ Pushed to GitHub'));
     }
 
     function toggleTheme() {
       const html = document.documentElement;
-      const current = html.getAttribute("data-theme");
-      html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
+      html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
 
     function log(msg) {
-      document.getElementById("terminal").textContent += "\n" + msg;
+      const term = document.getElementById('terminal');
+      term.textContent += '\n' + msg;
     }
 
     function detectLang(name) {

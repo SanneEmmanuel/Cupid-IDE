@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: cupid-ide
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node app.js
+    runtime: node
+    branch: main
+    autoDeploy: true
+    rootDir: .

@@ -1,37 +1,44 @@
-<!-- public/index.html -->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
-  <title>Cupid-IDE 💘</title>
+  <title>💘 Cupid-IDE</title>
   <link rel="stylesheet" href="/HeartBrake.min.css">
   <style>
     #editor { height: 60vh; }
     iframe { width: 100%; height: 300px; border: 1px solid var(--color-border); }
+    .header-btns button { margin-right: 8px; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs/loader.min.js"></script>
 </head>
-<body class="container">
-  <header class="row card">
-    <button class="btn" onclick="saveFile()">💾 Save</button>
-    <button class="btn" onclick="loadFile()">📂 Load</button>
-    <button class="btn" onclick="runCode()">▶️ Run</button>
-    <button class="btn" onclick="importFromGit()">⬇️ GitHub</button>
-    <button class="btn" onclick="pushToGit()">⬆️ Push</button>
-    <button class="btn btn--secondary" onclick="toggleTheme()">🌗 Theme</button>
+<body class="container animate-fadeIn">
+
+  <!-- Top Bar -->
+  <header class="row card animate-slideUp">
+    <div class="col header-btns">
+      <button class="btn animate-bounce" onclick="saveFile()">💾 Save</button>
+      <button class="btn animate-portal" onclick="loadFile()">📂 Load</button>
+      <button class="btn animate-glassMorph" onclick="runCode()">▶️ Run</button>
+      <button class="btn animate-rotate3D" onclick="importFromGit()">⬇️ GitHub</button>
+      <button class="btn animate-ghostTrail" onclick="pushToGit()">⬆️ Push</button>
+      <button class="btn btn--secondary animate-stutter" onclick="toggleTheme()">🌗 Theme</button>
+    </div>
   </header>
 
+  <!-- Main Editor Area -->
   <div class="row">
-    <div class="col-6">
-      <input class="input" id="filename" placeholder="Filename.js or Filename.html" />
-      <div id="editor" class="card animate-fadeIn"></div>
+    <div class="col-6 animate-zoomIn">
+      <input class="input card" id="filename" placeholder="Filename.js or Filename.html" />
+      <div id="editor" class="card animate-portal"></div>
     </div>
+
     <div class="col-6">
-      <pre class="card" id="terminal">💘 Cupid-IDE Console</pre>
-      <iframe id="preview" class="card" title="HTML Preview"></iframe>
+      <pre class="card animate-slideUp" id="terminal">💘 Cupid-IDE Console</pre>
+      <iframe id="preview" class="card animate-zoomIn" title="HTML Preview"></iframe>
     </div>
   </div>
 
+  <!-- Scripts -->
   <script>
     let editor;
     require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.33.0/min/vs' } });
@@ -72,7 +79,7 @@
         const html = editor.getValue();
         const blob = new Blob([html], { type: 'text/html' });
         document.getElementById('preview').src = URL.createObjectURL(blob);
-        log("🌐 HTML rendered below");
+        log("🌐 HTML rendered in preview");
       } else {
         post('/api/run', { name }).then(res => log("▶️ " + res.output));
       }
@@ -92,7 +99,8 @@
 
     function toggleTheme() {
       const html = document.documentElement;
-      html.setAttribute("data-theme", html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+      const current = html.getAttribute("data-theme");
+      html.setAttribute("data-theme", current === "dark" ? "light" : "dark");
     }
 
     function log(msg) {
